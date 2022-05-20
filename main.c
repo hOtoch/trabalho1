@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "Ponto.h"
+#include "mst.h"
 
 int main(){
     
@@ -37,10 +38,37 @@ int main(){
 
     for(int j = 0; j < i; j++){
         for(int k = 0; k < i; k++){
+            if(matriz[k][j] != NULL || j == k){
+                continue;
+            }
             matriz[j][k] = distanciaPontos(pontos[j], pontos[k]);
-            printf("%.2f ", matriz[j][k]);
+            //printf("%.2f ", matriz[j][k]);
         }
     }
+
+    int k;
+    printf("Informe o número k de agrupamentos a serem feitos:\n");
+    scanf("%d", &k);
+
+    // Criando a MST utilizando as informações obtidas
+    for(int i = 0; i< pontos.size();i++){
+        Mst* vertice = criaVertice(pontos[i]);
+        vertice->prox = criaAresta(matriz, numPontos); // PAREI AQUI!!!!!!!!
+    }
+    // Criando os ligamentos entre os pontos
+        vertice->prox = vertice.criaAresta(matriz,numPontos);
+    
+
+    
+
+    
+    
+
+
+   
+
+
+
 
 
     
