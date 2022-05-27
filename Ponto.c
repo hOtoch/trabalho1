@@ -17,13 +17,12 @@ int TamanhoPalavra(char* c){
 Ponto* readLine (FILE *fp){   
 
     size_t len = 0;
-    size_t numCaracteres;
     char *linha = NULL;
-    int i = 0,sizeCoord = 2,numCoord = 0;
+    int i = 0,sizeCoord = 2;
 
     Ponto *p = InicializaPonto(); // Aloca um ponto
 
-    numCaracteres = getline(&linha, &len, fp);
+    getline(&linha, &len, fp);
     char *token = strtok(linha, ",");
     
     int t = TamanhoPalavra(token);
