@@ -1,8 +1,8 @@
 compile:
-	gcc *.c -o main -lm
+	gcc *.c -o trab1 -lm
 
 run:
-	./main	
+	./trab1 entrada.txt 2 saida.txt
 
 clean:
 	rm -rf *.o

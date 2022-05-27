@@ -9,19 +9,20 @@
 #include "agrupamento.h"
 
 
-int main(){
+int main(int argc, char* argv[]){
 
     FILE * fp;
+    char* entrada = argv[1];
     int i = 0;
     int sizePontos = 10;
 
-    fp = fopen("teste.txt", "r");
+    fp = fopen(entrada, "r");
     if (fp == NULL){
         printf("Erro ao abrir o arquivo\n");
         exit(EXIT_FAILURE);
     }
 
-
+   
 
     // Leitura dos pontos
     Ponto **pontos = (Ponto**)malloc(sizePontos * sizeof(Ponto*));
@@ -36,32 +37,32 @@ int main(){
         i++;
     }
 
-
+    
     int numPontos = i;
 
 
-    // Calculando a matriz das distâncias entre os pontos
-    double matriz[numPontos][numPontos];
+    // // Calculando a matriz das distâncias entre os pontos
+     double matriz[numPontos][numPontos];
 
     for(int j = 0; j < i; j++){
         for(int k = 0; k < j-1; k++){
             matriz[j][k] = distanciaPontos(pontos[j], pontos[k]);
         }
     }
-    int k;
-    printf("Informe o número k de agrupamentos a serem feitos:\n");
-    scanf("%d", &k);
-
+    
+    int k = atoi(argv[2]);
+   
 
     int v[numPontos];
     for(int j = 0;j < numPontos;j++){
-        v[j] = j;
+        v[j] = -1;
     }
 
     double menor = 2147483647.0;
    
     int p1, p2;
     int q = 0;
+    int aux;
     while(q < numPontos - k ){ // numPontos - k= numero de agrupamentos
         //Encontra a menor aresta da matriz
         for(int j = 1;j < numPontos;j++){      
@@ -73,13 +74,49 @@ int main(){
                 }               
             }       
         }
+
+        //printf("%d - %d %d\n\n",q, p1, p2);
         
 
-        // Verifica se p2 já está no agrupamento de p1
+        // Caso os dois pontos não estejam em um agrupamento
+        if(v[p1] == -1 && v[p2] == -1){
+            v[p1] = p1;
+            v[p2] = p1;
+            q++;
+            matriz[p1][p2] = 0;
+            menor = 2147483647.0;
+            continue;
+        }
+
+        // Caso o ponto p1 não esteja em um agrupamento
+        if(v[p1] == -1){
+            v[p1] = v[p2];
+            q++;
+            matriz[p1][p2] = 0;
+            menor = 2147483647.0;
+            continue;
+        }
+
+        // Caso o ponto p2 não esteja em um agrupamento
+        if(v[p2] == -1){
+            v[p2] = v[p1];
+            q++;
+            matriz[p1][p2] = 0;
+            menor = 2147483647.0;
+            continue;
+        }
+
+        // Caso os dois pontos já estejam no mesmo agrupamento
+        if(v[p1] == v[p2]){
+            matriz[p1][p2] = 0;
+            menor = 2147483647.0;
+            continue;
+        }
         
-        if(v[p1] != v[p2]){         
+        if(v[p1] != v[p2]){ 
+            aux = v[p1];     
             for(int j = 0;j < numPontos;j++){ // Caso não esteja substitui todo o agrupamento de p2 pelo de p1 
-                if(v[j] == v[p1]){
+                if(v[j] == aux){
                     v[j] = v[p2];
                 }
             }
@@ -100,7 +137,6 @@ int main(){
     int *grupos;
     grupos = (int*)malloc(k * sizeof(int));
     grupos[0] = v[0];
-    
    
     for(int j = 1;j < k;j++){ // roda no número de grupos // PROBLEMA AQUI!
 
@@ -118,23 +154,28 @@ int main(){
 
         }
     }
-    // imprime vetor grupos 
-    // for(int j = 0; j < k; j++){
-    //     printf("%d\n",grupos[j]);
-    // }
 
+    // imprime os pontos em saida.txt
+    FILE * fp2;
+    char* saida = argv[3];
+    fp2 = fopen(saida, "w");
+    int first = 1;
+    for(int j =0 ;j < k; j++){
+        for(int l = 0;l < numPontos;l++){
+            if(first && v[l] == grupos[j]){
+                fprintf(fp2,"%s",getIdPonto(pontos[l]));
+                first = 0;
+                continue;
+            }
+            if(v[l] == grupos[j]){
+                fprintf(fp2,", %s", getIdPonto(pontos[l]));
 
-    // for(int j =0 ;j < k; j++){
-    //     for(int l = 0;l < numPontos;l++){
-    //         if(v[l] == grupos[j]){
-    //             printf("%s,", getIdPonto(pontos[l]));
-
-    //         }
-    //     }
-    //     printf("\n\n\n");
-
-
-    // }
+            }
+        }
+        first = 1;
+        fprintf(fp2,"\n");
+    }
+    free(grupos);
 
     // Liberação dos pontos
     for(int j = 0;j < i;j++){
